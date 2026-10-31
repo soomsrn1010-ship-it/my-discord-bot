@@ -1,6 +1,7 @@
 import os
 import json
 import aiohttp
+from aiohttp import web
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -219,6 +220,25 @@ class PageView(discord.ui.View):
         await interaction.response.edit_message(content="Reading session closed.", embed=None, view=None)
         self.stop()
 
+# ---------- Render Health Check ----------
+async def health_check(request):
+    return web.Response(text="Bot is running!")
+
+async def start_web_server():
+    app = web.Application()
+    app.router.add_get("/", health_check)
+    app.router.add_get("/health", health_check)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+
+    port = int(os.environ.get("PORT", 10000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+    print(f"Health server running on port {port}")
+
+
 # ---------- Bot ----------
 intents = discord.Intents.default()
 intents.message_content = True
@@ -227,6 +247,10 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
+    if not getattr(bot, "health_server_started", False):
+        await start_web_server()
+        bot.health_server_started = True
+
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     try:
         synced = await bot.tree.sync()
