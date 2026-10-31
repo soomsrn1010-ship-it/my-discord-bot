@@ -1,0 +1,13 @@
+{
+  "games": [],
+  "books": [],
+  "config": {
+    "games_channel_id": 1565996961755299920,
+    "books_channel_id": 1565996991891251240,
+    "add_games_role_id": null,
+    "add_books_role_id": null,
+    "games_ping_role_id": 1546148954402586624,
+    "admin_role_id": null,
+    "announced_epic_ids": []
+  }
+}
